@@ -30,7 +30,7 @@ This guide will help you deploy a **full production MLOps pipeline** with automa
 2. Create a variable group named: `databricks-secrets`
 3. Add these variables:
    ```
-   databricks-token: dapi8177f62e4c349554eca732a116742bc9
+   databricks-token: <YOUR_DATABRICKS_TOKEN>
    databricks-host: https://adb-1244961191947049.9.azuredatabricks.net
    ```
 4. **Mark `databricks-token` as secret** 🔒
@@ -74,7 +74,7 @@ import json
 # Endpoint configuration
 url = "https://adb-1244961191947049.9.azuredatabricks.net/serving-endpoints/regression-model-endpoint/invocations"
 headers = {
-    "Authorization": "Bearer dapi8177f62e4c349554eca732a116742bc9",
+    "Authorization": "Bearer <YOUR_DATABRICKS_TOKEN>",
     "Content-Type": "application/json"
 }
 
@@ -255,7 +255,7 @@ def predict(feature1, feature2, feature3):
     }
     
     headers = {
-        "Authorization": "Bearer dapi8177f62e4c349554eca732a116742bc9",
+        "Authorization": "Bearer <YOUR_DATABRICKS_TOKEN>",
         "Content-Type": "application/json"
     }
     

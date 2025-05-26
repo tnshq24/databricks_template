@@ -19,7 +19,7 @@ This guide will help you deploy a **full production MLOps pipeline** using **Git
 
 ✅ **GitHub Repository** (this repository)  
 ✅ **Databricks Workspace**: `https://adb-1244961191947049.9.azuredatabricks.net`  
-✅ **Databricks Token**: `dapi8177f62e4c349554eca732a116742bc9`  
+✅ **Databricks Token**: `<YOUR_DATABRICKS_TOKEN>`  
 ✅ **GitHub Actions enabled** (enabled by default)  
 
 ## 🔧 **Step 1: GitHub Repository Setup**
@@ -33,7 +33,7 @@ This guide will help you deploy a **full production MLOps pipeline** using **Git
 
 ```
 Name: DATABRICKS_TOKEN
-Value: dapi8177f62e4c349554eca732a116742bc9
+Value: <YOUR_DATABRICKS_TOKEN>
 ```
 
 ⚠️ **Make sure to mark it as a secret** - never commit tokens to your code!
@@ -102,7 +102,7 @@ import json
 # Endpoint configuration
 url = "https://adb-1244961191947049.9.azuredatabricks.net/serving-endpoints/regression-model-endpoint/invocations"
 headers = {
-    "Authorization": "Bearer dapi8177f62e4c349554eca732a116742bc9",
+         "Authorization": "Bearer <YOUR_DATABRICKS_TOKEN>",
     "Content-Type": "application/json"
 }
 
@@ -127,7 +127,7 @@ print(f"Prediction: {prediction}")
 ```bash
 curl -X POST \
   https://adb-1244961191947049.9.azuredatabricks.net/serving-endpoints/regression-model-endpoint/invocations \
-  -H "Authorization: Bearer dapi8177f62e4c349554eca732a116742bc9" \
+  -H "Authorization: Bearer <YOUR_DATABRICKS_TOKEN>" \
   -H "Content-Type: application/json" \
   -d '{
     "dataframe_records": [
@@ -353,7 +353,7 @@ Add notifications to your workflow:
 # Test the endpoint immediately
 curl -X POST \
   https://adb-1244961191947049.9.azuredatabricks.net/serving-endpoints/regression-model-endpoint/invocations \
-  -H "Authorization: Bearer dapi8177f62e4c349554eca732a116742bc9" \
+  -H "Authorization: Bearer <YOUR_DATABRICKS_TOKEN>" \
   -H "Content-Type: application/json" \
   -d '{"dataframe_records": [{"feature1": 50.0, "feature2": 25.0, "feature3": 12.5}]}'
 ```

@@ -16,7 +16,7 @@ class GitHubActionsSetup:
     def __init__(self):
         self.repo_root = Path(__file__).parent.parent
         self.databricks_host = "https://adb-1244961191947049.9.azuredatabricks.net"
-        self.databricks_token = "dapi8177f62e4c349554eca732a116742bc9"
+        self.databricks_token = "<YOUR_DATABRICKS_TOKEN>"
         
     def check_prerequisites(self):
         """Check if all prerequisites are met"""

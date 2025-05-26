@@ -38,7 +38,7 @@ GitHub Repository
 3. Add this secret:
    ```
    Name: DATABRICKS_TOKEN
-   Value: dapi8177f62e4c349554eca732a116742bc9
+   Value: <YOUR_DATABRICKS_TOKEN>
    ```
 
 ### **2. Deploy the Pipeline**
@@ -74,7 +74,7 @@ import requests
 
 url = "https://adb-1244961191947049.9.azuredatabricks.net/serving-endpoints/regression-model-endpoint/invocations"
 headers = {
-    "Authorization": "Bearer dapi8177f62e4c349554eca732a116742bc9",
+    "Authorization": "Bearer <YOUR_DATABRICKS_TOKEN>",
     "Content-Type": "application/json"
 }
 
