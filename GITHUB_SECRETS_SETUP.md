@@ -6,7 +6,7 @@ Your GitHub Actions workflows require the following secret to be configured:
 
 ### 🔑 **DATABRICKS_TOKEN**
 
-**Value**: `dapi8177f62e4c349554eca732a116742bc9`  
+**Value**: `[YOUR_DATABRICKS_TOKEN_HERE]`  
 **Description**: Your Databricks personal access token for API authentication
 
 ## 📋 **Step-by-Step Setup Instructions**
@@ -22,7 +22,7 @@ Go to: `https://github.com/tnshq24/databricks_template`
 ### 3. Add New Repository Secret
 - Click **New repository secret**
 - Set **Name**: `DATABRICKS_TOKEN`
-- Set **Secret**: `dapi8177f62e4c349554eca732a116742bc9`
+- Set **Secret**: `[YOUR_DATABRICKS_TOKEN_HERE]`
 - Click **Add secret**
 
 ## ✅ **Verification Steps**
