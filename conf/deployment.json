@@ -1,0 +1,74 @@
+{
+    "default": {
+        "jobs": [
+            {
+                "name": "databricks-cicd-template-sample",
+                "new_cluster": {
+                    "spark_version": "7.3.x-cpu-ml-scala2.12",
+                    "node_type_id": "Standard_F4s",
+                    "num_workers": 2
+                },
+                "libraries": [],
+                "email_notifications": {
+                    "on_start": [],
+                    "on_success": [],
+                    "on_failure": []
+                },
+                "max_retries": 0,
+                "spark_python_task": {
+                    "python_file": "UnnamedSlug/jobs/sample/entrypoint.py",
+                    "parameters": [
+                        "--conf-file",
+                        "conf/test/sample.json"
+                    ]
+                }
+            },
+            {
+                "name": "databricks-cicd-template-sample-integration-test",
+                "new_cluster": {
+                    "spark_version": "7.3.x-cpu-ml-scala2.12",
+                    "node_type_id": "Standard_F4s",
+                    "num_workers": 1
+                },
+                "libraries": [],
+                "email_notifications": {
+                    "on_start": [],
+                    "on_success": [],
+                    "on_failure": []
+                },
+                "max_retries": 0,
+                "spark_python_task": {
+                    "python_file": "tests/integration/sample_test.py"
+                }
+            },
+            {
+                "name": "databricks-cicd-template-regression",
+                "new_cluster": {
+                    "spark_version": "11.3.x-cpu-ml-scala2.12",
+                    "node_type_id": "Standard_F4s",
+                    "num_workers": 2
+                },
+                "libraries": [
+                    {
+                        "pypi": {
+                            "package": "mlflow>=2.0.0"
+                        }
+                    }
+                ],
+                "email_notifications": {
+                    "on_start": [],
+                    "on_success": [],
+                    "on_failure": []
+                },
+                "max_retries": 1,
+                "spark_python_task": {
+                    "python_file": "UnnamedSlug/jobs/regression/entrypoint.py",
+                    "parameters": [
+                        "--conf-file",
+                        "conf/test/regression.json"
+                    ]
+                }
+            }
+        ]
+    }
+}

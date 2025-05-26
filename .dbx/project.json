@@ -1,0 +1,10 @@
+{
+  "environments": {
+    "default": {
+      "profile": "tanishq",
+      "workspace_dir": "/databricks-cicd-template",
+      "artifact_location": "dbfs:/FileStore/databricks-cicd-template",
+      "workspace_host": "https://adb-1244961191947049.9.azuredatabricks.net"
+    }
+  }
+}

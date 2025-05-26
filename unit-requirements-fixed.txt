@@ -1,0 +1,8 @@
+setuptools
+wheel
+pyspark>=3.4.0
+pytest
+pytest-cov
+databricks-cli>=0.18.0
+databricks-sdk
+mlflow>=2.0.0 
