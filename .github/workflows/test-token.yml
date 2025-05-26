@@ -1,0 +1,56 @@
+name: Test Databricks Token
+
+on:
+  workflow_dispatch:  # Manual trigger only
+
+env:
+  DATABRICKS_HOST: https://adb-1244961191947049.9.azuredatabricks.net
+
+jobs:
+  test-token:
+    name: Test Databricks Authentication
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Test Databricks API Access
+      run: |
+        echo "🔐 Testing Databricks token..."
+        
+        # Test basic API access
+        response=$(curl -s -w "%{http_code}" -H "Authorization: Bearer ${{ secrets.DATABRICKS_TOKEN }}" \
+          "${{ env.DATABRICKS_HOST }}/api/2.0/clusters/list")
+        
+        http_code="${response: -3}"
+        
+        echo "HTTP Status Code: $http_code"
+        
+        if [ "$http_code" = "200" ]; then
+          echo "✅ Token authentication successful!"
+          echo "✅ Databricks API is accessible"
+        else
+          echo "❌ Token authentication failed!"
+          echo "❌ HTTP Status: $http_code" 
+          echo "❌ Response: ${response%???}"
+          exit 1
+        fi
+        
+    - name: Test Workspace Access
+      run: |
+        echo "📁 Testing workspace access..."
+        
+        response=$(curl -s -w "%{http_code}" -H "Authorization: Bearer ${{ secrets.DATABRICKS_TOKEN }}" \
+          "${{ env.DATABRICKS_HOST }}/api/2.0/workspace/list?path=/Shared")
+        
+        http_code="${response: -3}"
+        
+        echo "HTTP Status Code: $http_code"
+        
+        if [ "$http_code" = "200" ]; then
+          echo "✅ Workspace access successful!"
+          echo "✅ Ready for MLOps deployment"
+        else
+          echo "❌ Workspace access failed!"
+          echo "❌ HTTP Status: $http_code"
+          echo "❌ Response: ${response%???}"
+          exit 1
+        fi 
