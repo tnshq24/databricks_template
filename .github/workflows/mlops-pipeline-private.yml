@@ -1,0 +1,74 @@
+name: MLOps Pipeline (Private Network)
+
+on:
+  workflow_dispatch:  # Manual trigger
+  push:
+    branches: [ main ]
+    paths:
+      - 'UnnamedSlug/**'
+      - 'tests/**'
+      - 'conf/**'
+
+env:
+  DATABRICKS_HOST: https://adb-1244961191947049.9.azuredatabricks.net
+
+jobs:
+  unit-tests:
+    name: Run Unit Tests
+    runs-on: self-hosted  # 🔑 Uses self-hosted runner in private network
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest pyspark pandas numpy scikit-learn mlflow
+    
+    - name: Run unit tests
+      run: |
+        python -m pytest tests/unit/ -v
+    
+  deploy-to-databricks:
+    name: Deploy to Databricks
+    runs-on: self-hosted  # 🔑 Uses self-hosted runner in private network
+    needs: unit-tests
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Install Databricks CLI
+      run: |
+        pip install databricks-cli
+    
+    - name: Configure Databricks CLI
+      run: |
+        echo "[DEFAULT]" > ~/.databrickscfg
+        echo "host = ${{ env.DATABRICKS_HOST }}" >> ~/.databrickscfg
+        echo "token = ${{ secrets.DATABRICKS_TOKEN }}" >> ~/.databrickscfg
+        databricks jobs configure --version=2.1
+    
+    - name: Create workspace directory
+      run: |
+        databricks workspace mkdirs /Workspace/Shared/UnnamedSlug
+    
+    - name: Upload model code
+      run: |
+        find UnnamedSlug -name "*.py" -type f | while read file; do
+          workspace_path="/Workspace/Shared/${file}"
+          echo "Uploading $file to $workspace_path"
+          databricks workspace import "$file" "$workspace_path" --language PYTHON --overwrite
+        done
+    
+    - name: Deploy MLOps pipeline
+      run: |
+        echo "✅ MLOps pipeline deployed successfully to private Databricks workspace!"
+        echo "🔗 Workspace: ${{ env.DATABRICKS_HOST }}"
+        echo "📁 Code location: /Workspace/Shared/UnnamedSlug" 
