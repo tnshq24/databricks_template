@@ -1,100 +1,242 @@
-# databricks-cicd-template
+# 🚀 MLOps Pipeline with GitHub Actions & Databricks
 
-This is a sample project for Databricks, generated via cookiecutter.
+[![MLOps Pipeline](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/mlops-pipeline.yml/badge.svg)](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/mlops-pipeline.yml)
 
-While using this project, you need Python 3.X and `pip` or `conda` for package management.
+A **production-ready MLOps pipeline** using **GitHub Actions** for CI/CD and **Databricks** for model training, serving, and monitoring.
 
-## Installing project requirements
+## 🎯 **What This Pipeline Does**
+
+### **Complete Automated Workflow:**
+1. **Code Changes** → Triggers GitHub Actions workflow
+2. **Unit Testing** → Validates code quality  
+3. **Model Training** → Trains on latest data
+4. **Model Registration** → Saves to MLflow registry
+5. **Performance Evaluation** → Compares with production model
+6. **Auto-Promotion** → Promotes better models to production
+7. **Model Serving** → Deploys to real-time endpoint
+8. **Monitoring** → Watches for data drift and performance
+9. **Auto-Retraining** → Triggers when needed
+
+## 🏗️ **Architecture**
+
+```
+GitHub Repository
+├── Code Changes → GitHub Actions
+├── Unit Tests → Validation
+├── Model Training → Databricks Jobs
+├── Model Registry → MLflow
+├── Model Serving → Databricks Endpoints
+└── Monitoring → Auto-Retraining
+```
+
+## 🚀 **Quick Start**
+
+### **1. Setup GitHub Secrets**
+
+1. Go to your **GitHub repository**
+2. Click **Settings** → **Secrets and variables** → **Actions**
+3. Add this secret:
+   ```
+   Name: DATABRICKS_TOKEN
+   Value: dapi8177f62e4c349554eca732a116742bc9
+   ```
+
+### **2. Deploy the Pipeline**
 
 ```bash
-pip install -r unit-requirements.txt
+# Push to main branch to trigger the pipeline
+git add .
+git commit -m "Deploy MLOps pipeline"
+git push origin main
 ```
 
-## Install project package in a developer mode
+### **3. Monitor the Pipeline**
 
-```bash
-pip install -e .
+1. Go to **Actions** tab in your GitHub repository
+2. Watch the live logs for each job:
+   - 🧪 **Run Unit Tests**
+   - 🚀 **Train and Deploy Model**
+   - 🌐 **Deploy Model to Serving Endpoint**
+   - 🔄 **Setup Auto-Retraining Pipeline**
+
+## 📊 **Model Serving Endpoint**
+
+After deployment, your model is available at:
+
+```
+https://adb-1244961191947049.9.azuredatabricks.net/serving-endpoints/regression-model-endpoint/invocations
 ```
 
-## Testing
+### **Make Predictions:**
 
-For local unit testing, please use `pytest`:
-```
-pytest tests/unit --cov
-```
+```python
+import requests
 
-For an integration test on interactive cluster, use the following command:
-```
-dbx execute --cluster-name=<name of interactive cluster> --job=databricks-cicd-template-sample-integration-test
-```
+url = "https://adb-1244961191947049.9.azuredatabricks.net/serving-endpoints/regression-model-endpoint/invocations"
+headers = {
+    "Authorization": "Bearer dapi8177f62e4c349554eca732a116742bc9",
+    "Content-Type": "application/json"
+}
 
-For a test on an automated job cluster, deploy the job files and then launch:
-```
-dbx deploy --jobs=databricks-cicd-template-sample-integration-test --files-only
-dbx launch --job=databricks-cicd-template-sample-integration-test --as-run-submit --trace
-```
+data = {
+    "dataframe_records": [
+        {
+            "feature1": 50.0,
+            "feature2": 25.0, 
+            "feature3": 12.5
+        }
+    ]
+}
 
-## Interactive execution and development
-
-1. `dbx` expects that cluster for interactive execution supports `%pip` and `%conda` magic [commands](https://docs.databricks.com/libraries/notebooks-python-libraries.html).
-2. Please configure your job in `conf/deployment.json` file. 
-2. To execute the code interactively, provide either `--cluster-id` or `--cluster-name`.
-```bash
-dbx execute \
-    --cluster-name="<some-cluster-name>" \
-    --job=job-name
+response = requests.post(url, headers=headers, json=data)
+prediction = response.json()
+print(f"Prediction: {prediction}")
 ```
 
-Multiple users also can use the same cluster for development. Libraries will be isolated per each execution context.
+## 🔄 **Auto-Retraining**
 
-## Preparing deployment file
+The pipeline automatically retrains when:
 
-Next step would be to configure your deployment objects. To make this process easy and flexible, we're using JSON for configuration.
+1. **📅 Scheduled**: Daily at 2 AM UTC
+2. **📈 Data Drift**: Input data changes significantly  
+3. **📉 Performance Drop**: Model accuracy decreases
+4. **💾 New Data**: Fresh training data becomes available
 
-By default, deployment configuration is stored in `conf/deployment.json`.
+## 📁 **Project Structure**
 
-## Deployment for Run Submit API
-
-To deploy only the files and not to override the job definitions, do the following:
-
-```bash
-dbx deploy --files-only
+```
+databricks-cicd-template/
+├── .github/workflows/
+│   ├── mlops-pipeline.yml          # Main MLOps pipeline
+│   ├── data-retrain.yml           # Data-driven retraining
+│   └── test-pr.yml                # PR validation
+├── UnnamedSlug/
+│   ├── jobs/
+│   │   ├── regression/
+│   │   │   └── entrypoint.py       # Model training
+│   │   └── auto_retrain/
+│   │       └── data_monitor.py     # Auto-retraining logic
+│   └── common.py                   # Shared utilities
+├── tests/
+│   ├── unit/                       # Unit tests
+│   └── integration/                # Integration tests
+├── conf/
+│   └── test/
+│       └── regression.json         # Configuration
+├── scripts/
+│   └── github_actions_setup.py    # Setup script
+└── requirements/
+    ├── unit-requirements-fixed.txt # Dependencies
+    └── requirements.txt
 ```
 
-To launch the file-based deployment:
+## 🛠️ **Technologies Used**
+
+- **🔄 CI/CD**: GitHub Actions
+- **🧠 ML Platform**: Databricks
+- **📊 Experiment Tracking**: MLflow
+- **🌐 Model Serving**: Databricks Model Serving
+- **📈 Monitoring**: Data drift detection
+- **🐍 Language**: Python
+- **⚡ Compute**: Apache Spark
+
+## 🎯 **Features**
+
+### **✅ Continuous Integration**
+- Automated testing on every commit
+- Pull request validation
+- Code quality gates
+
+### **✅ Continuous Deployment**
+- Automatic model training and registration
+- Seamless production deployment
+- Multi-environment support
+
+### **✅ Model Serving**
+- Real-time prediction endpoint
+- Auto-scaling and cost optimization
+- Request logging and monitoring
+
+### **✅ Monitoring & Observability**
+- Data drift detection
+- Performance monitoring
+- GitHub Actions integration
+
+### **✅ Continuous Learning**
+- Automatic retraining on new data
+- Model performance comparison
+- Intelligent model promotion
+
+## 📈 **Monitoring & Dashboards**
+
+### **GitHub Actions**
+- Pipeline status and logs
+- Build history and artifacts
+- Email notifications on failures
+
+### **Databricks**
+- **Jobs**: `https://adb-1244961191947049.9.azuredatabricks.net/#job/list`
+- **MLflow**: `https://adb-1244961191947049.9.azuredatabricks.net/#mlflow`
+- **Serving**: `https://adb-1244961191947049.9.azuredatabricks.net/#/serving-endpoints`
+
+## 🔧 **Configuration**
+
+### **Model Configuration** (`conf/test/regression.json`)
+```json
+{
+  "output_format": "delta",
+  "output_path": "dbfs:/dbx/tmp/test/UnnamedSlug/regression_model",
+  "new_data_path": "dbfs:/mnt/data/incoming/",
+  "reference_data_path": "dbfs:/tmp/regression_model/reference_data",
+  "retrain_interval_days": 1,
+  "drift_threshold": 0.1,
+  "performance_threshold": 0.05
+}
 ```
-dbx launch --as-run-submit --trace
-```
 
-This type of deployment is handy for working in different branches, not to affect the main job definition.
+### **Workflow Triggers**
+- **Push to main/develop**: Full pipeline
+- **Pull requests**: Testing only
+- **Schedule**: Data monitoring every 6 hours
+- **Manual**: On-demand execution
 
-## Deployment for Run Now API
+## 🚨 **Alerts & Notifications**
 
-To deploy files and update the job definitions:
+The pipeline monitors:
+- ✅ **Pipeline Status** (GitHub Actions notifications)
+- ✅ **Model Performance** (RMSE, R², MAE)
+- ✅ **Data Drift** (feature distribution changes)
+- ✅ **Prediction Volume** (requests per minute)
+- ✅ **Response Times** (latency monitoring)
+- ✅ **Error Rates** (failed predictions)
 
-```bash
-dbx deploy
-```
+## 🔥 **Why GitHub Actions?**
 
-To launch the file-based deployment:
-```
-dbx launch --job=<job-name>
-```
+### **Advantages over Azure DevOps:**
+1. **🆓 Free for Public Repos** - 2,000 minutes/month for private
+2. **🔧 Simpler Setup** - No variable groups, just repository secrets
+3. **📱 Better Integration** - Native GitHub ecosystem
+4. **🚀 Faster Iteration** - Edit workflows directly in GitHub
+5. **🌐 Community Actions** - Vast marketplace of pre-built actions
+6. **📊 Better Visibility** - Status badges, PR checks, notifications
 
-This type of deployment shall be mainly used from the CI pipeline in automated way during new release.
+## 📚 **Documentation**
 
+- **[GitHub Actions Deployment Guide](GITHUB_ACTIONS_DEPLOYMENT_GUIDE.md)** - Complete setup instructions
+- **[Testing Guide](TESTING_GUIDE.md)** - Testing procedures and options
 
-## CICD pipeline settings
+## 🤝 **Contributing**
 
-Please set the following secrets or environment variables for your CI provider:
-- `DATABRICKS_HOST`
-- `DATABRICKS_TOKEN`
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests
+5. Submit a pull request
 
-## Testing and releasing via CI pipeline
+## 📄 **License**
 
-- To trigger the CI pipeline, simply push your code to the repository. If CI provider is correctly set, it shall trigger the general testing pipeline
-- To trigger the release pipeline, get the current version from the `UnnamedSlug/__init__.py` file and tag the current code version:
-```
-git tag -a v<your-project-version> -m "Release tag for version <your-project-version>"
-git push origin --tags
-```
+This project is licensed under the MIT License.
+
+---
+
+**🚀 Your enterprise-grade MLOps pipeline with GitHub Actions is ready for production!**

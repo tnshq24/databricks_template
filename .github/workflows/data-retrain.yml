@@ -1,0 +1,114 @@
+name: Data-Driven Retraining
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # Every 6 hours
+  repository_dispatch:
+    types: [new-data-available]
+  workflow_dispatch:  # Manual trigger
+
+env:
+  DATABRICKS_HOST: https://adb-1244961191947049.9.azuredatabricks.net
+
+jobs:
+  check-and-retrain:
+    name: Check Data and Retrain if Needed
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install databricks-cli databricks-sdk
+
+    - name: Configure Databricks CLI
+      run: |
+        echo "[DEFAULT]" > ~/.databrickscfg
+        echo "host = ${{ env.DATABRICKS_HOST }}" >> ~/.databrickscfg
+        echo "token = ${{ secrets.DATABRICKS_TOKEN }}" >> ~/.databrickscfg
+
+    - name: Check for Auto-Retraining Job
+      id: check_job
+      run: |
+        # Find the auto-retraining job ID
+        JOB_ID=$(databricks jobs list | grep "Auto-Retraining-Monitor" | head -1 | awk '{print $1}')
+        
+        if [ -z "$JOB_ID" ]; then
+          echo "Auto-retraining job not found. Please run the main MLOps pipeline first."
+          exit 1
+        fi
+        
+        echo "job_id=$JOB_ID" >> $GITHUB_OUTPUT
+        echo "✅ Found auto-retraining job with ID: $JOB_ID"
+
+    - name: Trigger Data Monitoring and Retraining
+      run: |
+        JOB_ID="${{ steps.check_job.outputs.job_id }}"
+        
+        # Start the data monitoring job
+        echo "🔍 Starting data monitoring and retraining check..."
+        RUN_ID=$(databricks jobs run-now --job-id $JOB_ID | jq -r .run_id)
+        echo "🚀 Started monitoring run with ID: $RUN_ID"
+        
+        # Wait for completion (with shorter timeout for monitoring)
+        timeout=1800  # 30 minutes
+        elapsed=0
+        interval=30
+        
+        while [ $elapsed -lt $timeout ]; do
+          STATUS=$(databricks runs get --run-id $RUN_ID | jq -r .state.life_cycle_state)
+          echo "⏳ Monitoring job status: $STATUS (${elapsed}s elapsed)"
+          
+          if [ "$STATUS" = "TERMINATED" ]; then
+            RESULT=$(databricks runs get --run-id $RUN_ID | jq -r .state.result_state)
+            echo "🏁 Monitoring job result: $RESULT"
+            
+            if [ "$RESULT" = "SUCCESS" ]; then
+              echo "✅ Data monitoring completed successfully!"
+              
+              # Check if retraining was triggered
+              LOG_OUTPUT=$(databricks runs get-output --run-id $RUN_ID | jq -r .logs)
+              if echo "$LOG_OUTPUT" | grep -q "Triggering automatic model retraining"; then
+                echo "🔄 Model retraining was triggered due to data drift or performance issues"
+              else
+                echo "ℹ️ No retraining needed - model is performing well"
+              fi
+              
+              exit 0
+            else
+              echo "❌ Data monitoring failed!"
+              exit 1
+            fi
+          fi
+          
+          sleep $interval
+          elapsed=$((elapsed + interval))
+        done
+        
+        echo "⏰ Data monitoring job timed out"
+        exit 1
+
+    - name: Notify Result
+      if: always()
+      run: |
+        if [ "${{ job.status }}" = "success" ]; then
+          echo "✅ Data monitoring completed successfully"
+          echo "📊 Check Databricks for detailed results"
+        else
+          echo "❌ Data monitoring failed"
+          echo "🔍 Check the logs above for details"
+        fi
+        
+        echo ""
+        echo "🌐 Monitor your pipeline:"
+        echo "  - Databricks Jobs: ${{ env.DATABRICKS_HOST }}/#job/list"
+        echo "  - MLflow Experiments: ${{ env.DATABRICKS_HOST }}/#mlflow/experiments"
+        echo "  - Model Serving: ${{ env.DATABRICKS_HOST }}/#/serving-endpoints" 

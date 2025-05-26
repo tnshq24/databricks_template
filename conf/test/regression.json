@@ -1,4 +1,9 @@
 {
   "output_format": "delta",
-  "output_path": "dbfs:/dbx/tmp/test/UnnamedSlug/regression_model"
+  "output_path": "dbfs:/dbx/tmp/test/UnnamedSlug/regression_model",
+  "new_data_path": "dbfs:/mnt/data/incoming/",
+  "reference_data_path": "dbfs:/tmp/regression_model/reference_data",
+  "retrain_interval_days": 1,
+  "drift_threshold": 0.1,
+  "performance_threshold": 0.05
 } 
