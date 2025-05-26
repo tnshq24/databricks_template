@@ -39,10 +39,15 @@ jobs:
         echo "host = ${{ env.DATABRICKS_HOST }}" >> ~/.databrickscfg
         echo "token = ${{ secrets.DATABRICKS_TOKEN }}" >> ~/.databrickscfg
 
-    - name: Verify Databricks Connection
+    - name: Verify Databricks Connection and Configure Jobs API
       run: |
+        # Test connection and get workspace info
         databricks workspace list /Shared --output json | head -5
         echo "✅ Databricks CLI configured successfully"
+        
+        # Configure Jobs API to use version 2.1
+        databricks jobs configure --version=2.1
+        echo "✅ Jobs API configured to use version 2.1"
 
     - name: Check for Auto-Retraining Job
       id: check_job
