@@ -57,9 +57,19 @@ jobs:
       run: |
         echo "🚀 Deploying model training pipeline..."
         
-        # Upload code to Databricks workspace
-        databricks workspace import-dir ./UnnamedSlug /Workspace/Shared/UnnamedSlug --overwrite
-        databricks workspace upload ./conf/test/regression.json /Workspace/Shared/conf/regression.json --overwrite
+        # Upload code to Databricks workspace (create directories first)
+        databricks workspace mkdirs /Workspace/Shared/UnnamedSlug
+        databricks workspace mkdirs /Workspace/Shared/conf
+        
+        # Use legacy CLI workspace import for compatibility
+        echo "Uploading UnnamedSlug package..."
+        find ./UnnamedSlug -name "*.py" | while read file; do
+          target_path="/Workspace/Shared/${file}"
+          databricks workspace import "$file" "$target_path" --language PYTHON --overwrite
+        done
+        
+        # Upload configuration
+        databricks workspace import ./conf/test/regression.json /Workspace/Shared/conf/regression.json --overwrite
         
         # Create training job configuration
         cat > training_job.json << EOF
@@ -209,7 +219,8 @@ jobs:
         echo "🔄 Creating auto-retraining job..."
         
         # Upload auto-retraining code
-        databricks workspace upload ./UnnamedSlug/jobs/auto_retrain/data_monitor.py /Workspace/Shared/UnnamedSlug/jobs/auto_retrain/data_monitor.py --overwrite
+        databricks workspace mkdirs /Workspace/Shared/UnnamedSlug/jobs/auto_retrain
+        databricks workspace import ./UnnamedSlug/jobs/auto_retrain/data_monitor.py /Workspace/Shared/UnnamedSlug/jobs/auto_retrain/data_monitor.py --language PYTHON --overwrite
         
         # Create auto-retraining job
         cat > auto_retrain_job.json << EOF
