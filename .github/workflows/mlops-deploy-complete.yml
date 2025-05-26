@@ -34,15 +34,17 @@ jobs:
         pip install -r unit-requirements-fixed.txt
         pip install -e .
 
-    - name: Configure Jobs API 2.1
-      run: |
-        databricks jobs configure --version=2.1
-
     - name: Configure Databricks CLI
       run: |
         echo "[DEFAULT]" > ~/.databrickscfg
         echo "host = ${{ env.DATABRICKS_HOST }}" >> ~/.databrickscfg
         echo "token = ${{ secrets.DATABRICKS_TOKEN }}" >> ~/.databrickscfg
+
+    - name: Verify Databricks Connection
+      run: |
+        # Test connection and get workspace info
+        databricks workspace list /Shared --output json | head -5
+        echo "✅ Databricks CLI configured successfully"
 
     - name: Run Unit Tests
       run: |
@@ -82,7 +84,7 @@ jobs:
         }
         EOF
         
-        # Submit and run training job
+        # Submit and run training job (using Jobs API 2.1 format)
         TRAINING_JOB_ID=$(databricks jobs create --json-file training_job.json | jq -r .job_id)
         echo "training_job_id=$TRAINING_JOB_ID" >> $GITHUB_OUTPUT
         echo "✅ Created training job with ID: $TRAINING_JOB_ID"
@@ -236,7 +238,7 @@ jobs:
         }
         EOF
         
-        # Create the auto-retraining job
+        # Create the auto-retraining job (using Jobs API 2.1 format)
         AUTO_RETRAIN_JOB_ID=$(databricks jobs create --json-file auto_retrain_job.json | jq -r .job_id)
         echo "✅ Created auto-retraining job with ID: $AUTO_RETRAIN_JOB_ID"
         

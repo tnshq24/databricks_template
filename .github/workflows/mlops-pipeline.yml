@@ -73,15 +73,16 @@ jobs:
         python -m pip install --upgrade pip
         pip install databricks-cli databricks-sdk mlflow
         
-    - name: Configure Jobs API 2.1
-      run: |
-        databricks jobs configure --version=2.1
-
     - name: Configure Databricks CLI
       run: |
         echo "[DEFAULT]" > ~/.databrickscfg
         echo "host = ${{ env.DATABRICKS_HOST }}" >> ~/.databrickscfg
         echo "token = ${{ secrets.DATABRICKS_TOKEN }}" >> ~/.databrickscfg
+
+    - name: Verify Databricks Connection
+      run: |
+        databricks workspace list /Shared --output json | head -5
+        echo "✅ Databricks CLI configured successfully"
       env:
         DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
 
