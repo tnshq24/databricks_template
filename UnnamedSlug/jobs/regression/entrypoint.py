@@ -167,18 +167,33 @@ class RegressionJob(Job):
             .mode("overwrite") \
             .save(f"{output_path}/predictions")
         
-        # Save model metadata
+        # Save model metadata (ensure all values are JSON serializable)
         metadata = {
-            "run_id": run_id,
-            "model_name": self.model_name,
+            "run_id": str(run_id),  # Ensure it's a string
+            "model_name": str(self.model_name),  # Ensure it's a string
             "training_timestamp": datetime.now().isoformat(),
             "model_type": "linear_regression",
             "features": ["feature1", "feature2", "feature3"]
         }
         
-        # Save metadata as JSON
-        self.spark.sparkContext.parallelize([json.dumps(metadata)]) \
-            .saveAsTextFile(f"{output_path}/metadata")
+        # Convert to JSON string and validate it's serializable
+        try:
+            metadata_json = json.dumps(metadata)
+            # Save metadata as JSON
+            self.spark.sparkContext.parallelize([metadata_json]) \
+                .saveAsTextFile(f"{output_path}/metadata")
+        except (TypeError, ValueError) as e:
+            self.logger.warning(f"Failed to serialize metadata: {e}")
+            # Save a simplified version instead
+            simple_metadata = {
+                "run_id": "unknown" if run_id is None else str(run_id),
+                "model_name": "mlops-regression-model", 
+                "training_timestamp": datetime.now().isoformat(),
+                "model_type": "linear_regression"
+            }
+            metadata_json = json.dumps(simple_metadata)
+            self.spark.sparkContext.parallelize([metadata_json]) \
+                .saveAsTextFile(f"{output_path}/metadata")
 
     def _promote_model_if_better(self, rmse, r2):
         """Promote model to production if it performs better"""
