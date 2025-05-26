@@ -6,6 +6,9 @@ on:
   repository_dispatch:
     types: [new-data-available]
   workflow_dispatch:  # Manual trigger
+  workflow_run:
+    workflows: ["MLOps Pipeline"]
+    types: [completed]
 
 env:
   DATABRICKS_HOST: https://adb-1244961191947049.9.azuredatabricks.net
@@ -14,6 +17,7 @@ jobs:
   check-and-retrain:
     name: Check Data and Retrain if Needed
     runs-on: ubuntu-latest
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     
     steps:
     - name: Checkout code
@@ -28,6 +32,10 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install databricks-cli databricks-sdk
+        
+    - name: Configure Jobs API 2.1
+      run: |
+        databricks jobs configure --version=2.1
 
     - name: Configure Databricks CLI
       run: |
@@ -39,10 +47,21 @@ jobs:
       id: check_job
       run: |
         # Find the auto-retraining job ID
-        JOB_ID=$(databricks jobs list | grep "Auto-Retraining-Monitor" | head -1 | awk '{print $1}')
+        echo "🔍 Searching for auto-retraining job..."
+        JOB_LIST=$(databricks jobs list --output json)
+        JOB_ID=$(echo "$JOB_LIST" | jq -r '.jobs[] | select(.settings.name | contains("Auto-Retraining-Monitor")) | .job_id' | head -1)
         
-        if [ -z "$JOB_ID" ]; then
-          echo "Auto-retraining job not found. Please run the main MLOps pipeline first."
+        if [ -z "$JOB_ID" ] || [ "$JOB_ID" = "null" ]; then
+          echo "❌ Auto-retraining job not found."
+          echo "📋 Available jobs:"
+          echo "$JOB_LIST" | jq -r '.jobs[] | "\(.job_id): \(.settings.name)"'
+          echo ""
+          echo "💡 This usually means:"
+          echo "  1. The main MLOps pipeline hasn't run successfully yet"
+          echo "  2. The auto-retraining job creation failed"
+          echo "  3. The job name doesn't match exactly"
+          echo ""
+          echo "🔧 Please run the main MLOps pipeline first to create the auto-retraining job."
           exit 1
         fi
         

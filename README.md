@@ -1,6 +1,6 @@
 # 🚀 MLOps Pipeline with GitHub Actions & Databricks
 
-[![MLOps Pipeline](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/mlops-pipeline.yml/badge.svg)](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/mlops-pipeline.yml)
+[![MLOps Pipeline](https://github.com/tnshq24/databricks_template/actions/workflows/mlops-pipeline.yml/badge.svg)](https://github.com/tnshq24/databricks_template/actions/workflows/mlops-pipeline.yml)
 
 A **production-ready MLOps pipeline** using **GitHub Actions** for CI/CD and **Databricks** for model training, serving, and monitoring.
 
