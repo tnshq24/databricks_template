@@ -1,15 +1,15 @@
-name: MLOps Pipeline
+name: MLOps Pipeline (DISABLED - Private Network)
 
 on:
-  push:
-    branches: [ main, develop ]
-    paths:
-      - 'UnnamedSlug/**'
-      - 'tests/**'
-      - 'conf/**'
-  pull_request:
-    branches: [ main ]
-  workflow_dispatch:  # Allow manual triggering
+  # push:  # DISABLED: Cannot access private Databricks workspace from public runners
+  #   branches: [ main, develop ]
+  #   paths:
+  #     - 'UnnamedSlug/**'
+  #     - 'tests/**'
+  #     - 'conf/**'
+  # pull_request:  # DISABLED: Cannot access private Databricks workspace from public runners
+  #   branches: [ main ]
+  workflow_dispatch:  # Manual trigger only - requires self-hosted runner
 
 env:
   DATABRICKS_HOST: https://adb-1244961191947049.9.azuredatabricks.net

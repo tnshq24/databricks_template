@@ -1,14 +1,14 @@
-name: Data-Driven Retraining
+name: Data-Driven Retraining (DISABLED - Private Network)
 
 on:
-  schedule:
-    - cron: '0 */6 * * *'  # Every 6 hours
-  repository_dispatch:
-    types: [new-data-available]
-  workflow_dispatch:  # Manual trigger
-  workflow_run:
-    workflows: ["MLOps Pipeline"]
-    types: [completed]
+  # schedule:  # DISABLED: Cannot access private Databricks workspace from public runners
+  #   - cron: '0 */6 * * *'  # Every 6 hours
+  # repository_dispatch:  # DISABLED: Cannot access private Databricks workspace from public runners
+  #   types: [new-data-available]
+  workflow_dispatch:  # Manual trigger only - requires self-hosted runner
+  # workflow_run:  # DISABLED: Cannot access private Databricks workspace from public runners
+  #   workflows: ["MLOps Pipeline"]
+  #   types: [completed]
 
 env:
   DATABRICKS_HOST: https://adb-1244961191947049.9.azuredatabricks.net

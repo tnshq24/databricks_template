@@ -1,14 +1,14 @@
-name: Complete MLOps Deployment
+name: Complete MLOps Deployment (DISABLED - Private Network)
 
 on:
-  push:
-    branches: [ main ]
-    paths:
-      - 'UnnamedSlug/**'
-      - 'tests/**'
-      - 'conf/**'
-      - '.github/workflows/**'
-  workflow_dispatch:  # Manual trigger
+  # push:  # DISABLED: Cannot access private Databricks workspace from public runners
+  #   branches: [ main ]
+  #   paths:
+  #     - 'UnnamedSlug/**'
+  #     - 'tests/**'
+  #     - 'conf/**'
+  #     - '.github/workflows/**'
+  workflow_dispatch:  # Manual trigger only - requires self-hosted runner
 
 env:
   DATABRICKS_HOST: https://adb-1244961191947049.9.azuredatabricks.net
